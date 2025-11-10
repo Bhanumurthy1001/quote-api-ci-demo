@@ -10,8 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      # 🟢 Step 1: Checkout code
+      # 🟢 Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -35,14 +39,14 @@ jobs:
       - name: Build JAR
         run: mvn package -DskipTests
 
-      # 🟢 Step 6: Upload build artifact (optional but recommended)
+      # 🟢 Step 6: Upload build artifact (optional)
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: quote-api-jar
           path: target/quote-api-1.0-SNAPSHOT.jar
 
-            # 🟢 Step 7: Build Docker image
+      # 🟢 Step 7: Build Docker image
       - name: Build Docker Image
         run: |
           OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
@@ -56,10 +60,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
- 
-      # 🟢 Step 9: Push Docker image
+      # 🟢 Step 9: Push Docker image to GHCR
       - name: Push Docker Image
         run: |
           OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker push ghcr.io/${OWNER_LC}/quote-api:latest
-
