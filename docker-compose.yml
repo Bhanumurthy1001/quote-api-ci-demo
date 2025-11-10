@@ -1,0 +1,9 @@
+services:
+  quote-api:
+    image: ghcr.io/bhanumurthy1001/quote-api:latest
+    container_name: quote-api
+    restart: always
+    platform: linux/amd64  # Fix for Apple M1/M2
+    ports:
+      - "8080:8080"        # Expose container port 8080 to localhost:8080
+    command: ["java", "-jar", "app.jar"]

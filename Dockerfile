@@ -1,32 +1,13 @@
-# ------------------------------------------------------------
-# Stage 1: Build the application using Maven
-# ------------------------------------------------------------
-FROM eclipse-temurin:17-jdk AS build
-
-# Install Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /app
-
-# Copy Maven descriptor and source code
-COPY pom.xml .
-COPY src ./src
-
-# Package the application
-RUN mvn clean package -DskipTests
-
-# ------------------------------------------------------------
-# Stage 2: Create the final lightweight runtime image
-# ------------------------------------------------------------
+# Use OpenJDK 17 base image
 FROM eclipse-temurin:17-jdk-jammy
 
-# Set working directory
 WORKDIR /app
+COPY target/quote-api-1.0-SNAPSHOT.jar app.jar
 
-# Copy the jar from the previous stage
-COPY --from=build /app/target/quote-api-1.0-SNAPSHOT.jar app.jar
+EXPOSE 8080
 
-# Run the application
 CMD ["java", "-jar", "app.jar"]
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1

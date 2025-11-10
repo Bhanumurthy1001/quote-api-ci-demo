@@ -1,2 +1,4 @@
+App$HealthHandler.class
 App.class
+App$QuoteHandler.class
 QuoteController.class
