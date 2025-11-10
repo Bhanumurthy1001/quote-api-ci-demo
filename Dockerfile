@@ -3,6 +3,9 @@
 # ------------------------------------------------------------
 FROM eclipse-temurin:17-jdk AS build
 
+# Install Maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /app
 
@@ -10,8 +13,8 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Package the application (skip tests to speed up CI/CD build)
-RUN ./mvnw clean package -DskipTests || mvn clean package -DskipTests
+# Package the application
+RUN mvn clean package -DskipTests
 
 # ------------------------------------------------------------
 # Stage 2: Create the final lightweight runtime image
@@ -21,8 +24,9 @@ FROM eclipse-temurin:17-jdk-jammy
 # Set working directory
 WORKDIR /app
 
-# Copy built jar from the build stage
+# Copy the jar from the previous stage
 COPY --from=build /app/target/quote-api-1.0-SNAPSHOT.jar app.jar
 
-# Define default command
+# Run the application
 CMD ["java", "-jar", "app.jar"]
+
